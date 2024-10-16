@@ -887,7 +887,6 @@ impl Config {
         protos: &[impl AsRef<Path>],
         includes: &[impl AsRef<Path>],
     ) -> Result<FileDescriptorSet> {
-        let tmp;
         let file_descriptor_set_path = if let Some(path) = &self.file_descriptor_set_path {
             path.clone()
         } else {
@@ -897,8 +896,15 @@ impl Config {
                     "file_descriptor_set_path is required with skip_protoc_run",
                 ));
             }
-            tmp = tempfile::Builder::new().prefix("prost-build").tempdir()?;
-            tmp.path().join("prost-descriptor-set")
+
+            let rand = "12345".to_string();
+
+            let temp_dir = env::temp_dir().join(format!("prost-build-{}", rand));
+            let file_set_descriptor_set_path = temp_dir.join("prost-descriptor-set");
+
+            fs::create_dir_all(&file_set_descriptor_set_path)?;
+
+            file_set_descriptor_set_path
         };
 
         if !self.skip_protoc_run {

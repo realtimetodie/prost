@@ -25,12 +25,12 @@ fn main() -> Result<()> {
         let build_dir = &out_dir.join(format!("build-protobuf-{}", version));
         fs::create_dir_all(build_dir).expect("failed to create build directory");
 
-        let tempdir = tempfile::Builder::new()
-            .prefix("protobuf")
-            .tempdir_in(out_dir)
-            .expect("failed to create temporary directory");
+        let rand = "12345".to_string();
 
-        let prefix_dir = &tempdir.path().join("prefix");
+        let temp_dir = out_dir.join(format!("protobuf-{}", rand));
+        fs::create_dir_all(&temp_dir).expect("failed to create temporary directory");
+
+        let prefix_dir = &temp_dir.join("prefix");
         fs::create_dir(prefix_dir).expect("failed to create prefix directory");
         install_protoc_and_conformance_test_runner(&src_dir, build_dir, prefix_dir)?;
         fs::rename(prefix_dir, protobuf_dir).context("failed to move protobuf dir")?;
